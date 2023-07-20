@@ -1,0 +1,51 @@
+import socket
+
+# Function to convert pressure from bar to atmosphere-standard
+def convert_to_atmosphere(pressure):
+    return pressure * 0.986923
+
+def main():
+    # Server configurations
+    host = "0.0.0.0"
+    port = 12345
+    buffer_size = 1024
+
+    # Create a TCP socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Bind the socket to the address and port
+    server_socket.bind((host, port))
+
+    # Start listening for incoming connections
+    server_socket.listen(1)
+    print("Server is listening on {}:{}".format(host, port))
+
+    while True:
+        # Accept incoming connection
+        client_socket, client_addr = server_socket.accept()
+        print("Connection established with: ", client_addr)
+
+        try:
+            # Receive data from the client
+            data = client_socket.recv(buffer_size).decode()
+
+            if not data:
+                break
+
+            # Convert the received pressure to atmosphere-standard
+            pressure_in_bar = float(data)
+            pressure_in_atmosphere = convert_to_atmosphere(pressure_in_bar)
+
+            # Send the converted pressure back to the client
+            client_socket.send(str(pressure_in_atmosphere).encode())
+
+        except Exception as e:
+            print("Error occurred:", e)
+
+        finally:
+            # Close the client socket
+            client_socket.close()
+
+if __name__ == "__main__":
+    main()
+
