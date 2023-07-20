@@ -1,0 +1,49 @@
+import socket
+import threading
+import random
+
+# List of quotes
+quotes = [
+    "The greatest glory in living lies not in never falling, but in rising every time we fal>
+    "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosev>
+    "Life is what happens when you're busy making other plans. - John Lennon",
+    "The only way to do great work is to love what you do. - Steve Jobs",
+    "In the end, it's not the years in your life that count. It's the life in your years. - >
+]
+
+def handle_client(client_socket):
+    # Send a random quote to the client
+    quote = random.choice(quotes)
+    client_socket.send(quote.encode())
+    client_socket.close()
+
+def main():
+    # Server configuration
+    host = '0.0.0.0'
+    port = 9999
+
+    # Create a socket object
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Bind the socket to a specific address and port
+    server_socket.bind((host, port))
+
+    # Start listening for incoming connections
+    server_socket.listen(5)
+    print(f"Server listening on {host}:{port}")
+
+    while True:
+        try:
+            # Accept a new connection from a client
+            client_socket, addr = server_socket.accept()
+            print(f"Connection established with {addr}")
+
+            # Create a new thread to handle the client
+            client_handler = threading.Thread(target=handle_client, args=(client_socket,))
+            client_handler.start()
+        except KeyboardInterrupt:
+ print("Server shutting down...")
+            break
+
+if __name__ == "__main__":
+    main()
