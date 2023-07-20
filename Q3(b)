@@ -1,0 +1,39 @@
+import socket
+
+def main():
+    # Server configurations
+    host = "192.168.44.129"
+    port = 12345
+    buffer_size = 1024
+
+    try:
+        # Create a TCP socket
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # Connect to the server
+        client_socket.connect((host, port))
+
+        # Get pressure input from the user
+        pressure_in_bar = float(input("Enter pressure in bar: "))
+
+        # Send pressure to the server
+        client_socket.send(str(pressure_in_bar).encode())
+
+        # Receive and print the converted pressure from the server
+        converted_pressure = client_socket.recv(buffer_size).decode()
+
+        # Display the results
+        print("\nPressure Conversion:")
+        print("===================================")
+        print("Pressure in bar: {:.2f} bar".format(pressure_in_bar))
+        print("Pressure in atmosphere-standard: {:.2f} atm".format(float(converted_pressure)>
+
+    except Exception as e:
+        print("Error occurred:", e)
+
+    finally:
+        # Close the client socket
+        client_socket.close()
+
+if __name__ == "__main__":
+    main()
