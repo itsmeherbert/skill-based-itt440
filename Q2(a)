@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+
+int generate_random_number() {
+    return rand() % 900 + 100; // Generate random number between 100 and 999
+}
+
+int main() {
+    int sockfd, new_sock;
+    struct sockaddr_in server_addr, new_addr;
+    socklen_t addr_size;
+    char buffer[1024];
+
+    // Create socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0)
+                {
+                perror("Error in socket");
+                exit(1);
+                }
+        printf("Server socket created successfully.\n");
+
+    // Initialize the server address struct
+    memset(&server_addr, '\0', sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+
+    // Bind the socket to the specified IP and port
+    if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1)
+        {
+        perror("Error in binding");
+        exit(1);
+        }
+    printf("Binding success.\n");
+
+    // Start listening for incoming connections
+    if (listen(sockfd, 10) == -1)
+        {
+        perror("Error in listening");
+        exit(1);
+        }
+    printf("Listening....\n");
+
+    addr_size = sizeof(new_addr);
+    new_sock = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size); // Accept connection>
+    if (new_sock < 0)
+        {
+        perror("Error in accepting");
+        exit(1);
+        }
+
+    // Generate and send a random number to the client
+    int random_number = generate_random_number();
+    sprintf(buffer, "%d", random_number);
+    send(new_sock, buffer, strlen(buffer), 0);
+
+    printf("Random number %d sent to the client.\n", random_number);
+
+    close(new_sock);
+    close(sockfd);
+
+    return 0;
+}
