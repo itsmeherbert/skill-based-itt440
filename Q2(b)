@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <arpa/inet.h>
+
+#define PORT 8080
+
+int main() {
+    int sockfd;
+    struct sockaddr_in server_addr;
+    char buffer[1024];
+
+    // Create socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (sockfd < 0)
+                {
+                perror("Error in socket");
+                exit(1);
+                }
+
+    // Initialize the server address struct
+    memset(&server_addr, '\0', sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = inet_addr("192.168.44.129"); // Assuming the server is running on the same machine
+
+    // Connect to the server
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1)
+        {
+        perror("Error in connection");
+        exit(1);
+        }
+
+    // Receive the random number from the server
+    int num_bytes_received = recv(sockfd, buffer, sizeof(buffer), 0);
+        if (num_bytes_received <= 0)
+                {
+                perror("Error in receiving");
+                exit(1);
+                }
+    buffer[num_bytes_received] = '\0';
+
+    // Convert the received buffer to an integer (the random number)
+    int random_number = atoi(buffer);
+    printf("Random number received from the server: %d\n", random_number);
+
+    close(sockfd);
+
+    return 0;
+}
