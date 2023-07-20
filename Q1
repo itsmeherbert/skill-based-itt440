@@ -1,0 +1,31 @@
+import socket
+
+def send_receive_data(host, port, data):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+        try:
+            client_socket.connect((host, port))
+            print(f"Connected to {host}:{port}")
+
+            client_socket.sendall(data.encode())
+            print(f"Sent data: {data}")
+
+            response = client_socket.recv(1024).decode()
+            print(f"Received response: {response}")
+
+            return response
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
+
+def main():
+    host = 'izani.synology.me'
+    port = 8443
+    student_id = '2022659828'
+
+    response = send_receive_data(host, port, student_id)
+
+    if response:
+        print("Next Question URL:", response)
+
+if __name__ == "__main__":
+    main()
